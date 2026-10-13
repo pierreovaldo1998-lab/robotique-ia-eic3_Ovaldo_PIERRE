@@ -1,6 +1,7 @@
 # Robotique & Intelligence Artificielle — EIC 3.0
 
 **Étudiant(e) :** Ovaldo_PIERRE
+
 **Formateur :** Carlos Yfrazin, Ingénieur Électricien  
 **Remise :** mardi 13 octobre 2026, 23 h 59 (heure d'Haïti)
 
