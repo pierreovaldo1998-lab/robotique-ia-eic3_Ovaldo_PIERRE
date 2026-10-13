@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Devoir 4 - Test du modèle Teachable Machine (images)</title>
+</head>
+<body>
+  <h1>Classificateur d'images</h1>
+  <button onclick="init()">Démarrer la webcam</button>
+  <div id="webcam-container"></div>
+  <div id="label-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+  <script>
+    // 1) Dans Teachable Machine : Export Model > Upload (cloud) > copier le lien du modèle ici
+    const MODEL_URL = "https://teachablemachine.withgoogle.com/models/XXXXXXXX/";
+
+    let model, webcam, labelContainer, maxPredictions;
+
+    async function init() {
+      model = await tmImage.load(MODEL_URL + "model.json", MODEL_URL + "metadata.json");
+      maxPredictions = model.getTotalClasses();
+      webcam = new tmImage.Webcam(300, 300, true);   // largeur, hauteur, miroir
+      await webcam.setup();
+      await webcam.play();
+      window.requestAnimationFrame(loop);
+      document.getElementById("webcam-container").appendChild(webcam.canvas);
+      labelContainer = document.getElementById("label-container");
+      for (let i = 0; i < maxPredictions; i++) labelContainer.appendChild(document.createElement("div"));
+    }
+    async function loop() { webcam.update(); await predict(); window.requestAnimationFrame(loop); }
+    async function predict() {
+      const prediction = await model.predict(webcam.canvas);
+      for (let i = 0; i < maxPredictions; i++) {
+        labelContainer.childNodes[i].innerHTML =
+          prediction[i].className + " : " + (prediction[i].probability * 100).toFixed(1) + " %";
+      }
+    }
+  </script>
+</body>
+</html>

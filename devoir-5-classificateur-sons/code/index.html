@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Devoir 5 - Test du modèle Teachable Machine (sons)</title>
+</head>
+<body>
+  <h1>Classificateur de sons</h1>
+  <button onclick="init()">Démarrer le microphone</button>
+  <div id="label-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0/dist/speech-commands.min.js"></script>
+  <script>
+    // Dans Teachable Machine : Export Model > Upload (cloud) > copier le lien du modèle ici
+    const MODEL_URL = "https://teachablemachine.withgoogle.com/models/XXXXXXXX/";
+
+    async function createModel() {
+      const recognizer = speechCommands.create(
+        "BROWSER_FFT", undefined, MODEL_URL + "model.json", MODEL_URL + "metadata.json");
+      await recognizer.ensureModelLoaded();
+      return recognizer;
+    }
+
+    async function init() {
+      const recognizer = await createModel();
+      const classLabels = recognizer.wordLabels();
+      const labelContainer = document.getElementById("label-container");
+      for (let i = 0; i < classLabels.length; i++) labelContainer.appendChild(document.createElement("div"));
+
+      recognizer.listen(result => {
+        const scores = result.scores;   // probabilité par classe
+        for (let i = 0; i < classLabels.length; i++) {
+          labelContainer.childNodes[i].innerHTML = classLabels[i] + " : " + scores[i].toFixed(2);
+        }
+      }, { includeSpectrogram: true, probabilityThreshold: 0.75, invokeCallbackOnNoiseAndUnknown: true, overlapFactor: 0.50 });
+    }
+  </script>
+</body>
+</html>
